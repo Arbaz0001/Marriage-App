@@ -52,7 +52,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:5173", // Local frontend
-  "https://your-frontend.netlify.app", // 🔥 Replace with your Netlify URL
+  "https://marriagepanel.netlify.app/", // 🔥 Replace with your Netlify URL
 ];
 
 app.use(
