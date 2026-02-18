@@ -51,14 +51,14 @@ const app = express();
 ========================= */
 
 const allowedOrigins = [
-  "http://localhost:5173", // Local frontend
-  "https://marriagepanel.netlify.app/", // 🔥 Replace with your Netlify URL
+  "http://localhost:5173",
+  "https://marriagepanel.netlify.app" // ❌ NO slash at end
 ];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // allow Postman / server calls
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // Postman / server calls
 
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
