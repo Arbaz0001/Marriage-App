@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased;
+    background-color: #eef4ff;
+    color: #0f172a;
+  }
+}
+
+@layer components {
+  .input {
+    @apply w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400
+           focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 shadow-sm;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-md bg-blue-900 px-4 py-2 text-sm font-semibold text-white shadow
+           hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-900;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-md border border-blue-900 bg-white px-4 py-2 text-sm font-semibold text-blue-900
+           hover:bg-blue-900 hover:text-white;
+  }
+}

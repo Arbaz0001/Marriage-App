@@ -41,7 +41,7 @@ export default function AdminProfiles() {
   };
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-4 md:p-6 text-slate-800">
       <h1 className="text-2xl font-bold mb-4">All Matrimony Profiles</h1>
 
       {/* FILTER BAR */}
@@ -58,18 +58,38 @@ export default function AdminProfiles() {
 
         <input placeholder="Max Age" className="input" onChange={(e) => setFilters({ ...filters, maxAge: e.target.value })} />
 
-        <button onClick={applyFilter} className="bg-pink-600 text-white rounded px-3 py-2 col-span-2 md:col-span-1">Apply</button>
+        <button
+          onClick={applyFilter}
+          className="btn-primary col-span-2 md:col-span-1 justify-center py-2"
+        >
+          Apply
+        </button>
       </div>
 
       <div className="mb-4 flex gap-2">
-        <button onClick={() => setTableView(!tableView)} className="bg-gray-200 px-3 py-1 rounded">{tableView ? 'Show Cards' : 'Show Table'}</button>
-        <button onClick={exportCSV} className="bg-blue-600 text-white px-3 py-1 rounded">Export CSV</button>
-        <Link to="/admin/profiles/create" className="bg-green-600 text-white px-3 py-1 rounded">Create Profile</Link>
+        <button
+          onClick={() => setTableView(!tableView)}
+          className="bg-slate-200 px-3 py-1 rounded"
+        >
+          {tableView ? 'Show Cards' : 'Show Table'}
+        </button>
+        <button
+          onClick={exportCSV}
+          className="btn-outline px-3 py-1"
+        >
+          Export CSV
+        </button>
+        <Link
+          to="/admin/profiles/create"
+          className="btn-primary px-3 py-1"
+        >
+          Create Profile
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {tableView ? (
-          <div className="col-span-1 md:col-span-2 overflow-auto">
+          <div className="col-span-1 md:col-span-2 overflow-auto rounded bg-white text-slate-800">
             <table className="w-full table-auto border-collapse">
               <thead>
                 <tr className="bg-gray-100">
@@ -101,16 +121,16 @@ export default function AdminProfiles() {
           </div>
         ) : (
           profiles.map((p) => (
-            <div key={p._id} className="border rounded p-4 shadow-sm bg-white">
+            <div key={p._id} className="border rounded p-4 shadow-sm bg-white text-slate-800">
               <h2 className="font-semibold text-lg">{p.name}</h2>
 
               <p className="text-sm text-gray-600">{p.gender} | {p.maritalStatus}</p>
 
-              <p className="text-sm">📍 {p.city}, {p.state}</p>
-              <p className="text-sm">🕌 Sect: {p.sect}</p>
-              <p className="text-sm">🎓 {p.education}</p>
-              <p className="text-sm">💼 {p.occupation}</p>
-              <p className="text-sm">📞 {p.mobile}</p>
+              <p className="text-sm text-slate-700">📍 {p.city}, {p.state}</p>
+              <p className="text-sm text-slate-700">🕌 Sect: {p.sect}</p>
+              <p className="text-sm text-slate-700">🎓 {p.education}</p>
+              <p className="text-sm text-slate-700">💼 {p.occupation}</p>
+              <p className="text-sm text-slate-700">📞 {p.mobile}</p>
 
               <p className="text-sm mt-2 text-gray-700">{p.about}</p>
 
@@ -135,7 +155,7 @@ export default function AdminProfiles() {
                 <div>Siblings: {p.siblings || '—'}</div>
               </div>
 
-              <p className="mt-2 text-sm">Status: {p.isApproved ? (<span className="text-green-600 font-semibold">Approved</span>) : (<span className="text-yellow-600 font-semibold">Pending</span>)}</p>
+              <p className="mt-2 text-sm text-slate-700">Status: {p.isApproved ? (<span className="text-green-600 font-semibold">Approved</span>) : (<span className="text-yellow-600 font-semibold">Pending</span>)}</p>
 
               <div className="flex flex-wrap gap-2 mt-3">
                 <button onClick={() => updateStatus(p._id, true)} className="bg-green-500 text-white px-3 py-1 rounded">Approve</button>
@@ -151,7 +171,7 @@ export default function AdminProfiles() {
       {/* Modal / View */}
       {selected && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white p-6 max-w-2xl w-full rounded">
+          <div className="bg-white text-slate-800 p-6 max-w-2xl w-full rounded">
             <h3 className="text-xl font-bold mb-2">{selected.name}</h3>
             <p>{selected.gender} | {selected.city}, {selected.state}</p>
             <p className="mt-2">{selected.about}</p>

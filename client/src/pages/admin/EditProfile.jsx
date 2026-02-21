@@ -86,9 +86,9 @@ export default function EditProfile() {
   const photoUrl = form.photos?.length > 0 ? (form.photos[0].startsWith("http") ? form.photos[0] : `${base}/${form.photos[0]}`) : defaultImage;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+    <div className="min-h-screen bg-[#eef4ff] p-4 md:p-6">
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow">
-        <div className="bg-pink-600 text-white p-6 rounded-t-lg">
+        <div className="bg-blue-900 text-white p-6 rounded-t-lg">
           <h1 className="text-3xl font-bold">Edit Profile</h1>
         </div>
         <form onSubmit={submitHandler} className="p-6 space-y-6">
@@ -218,7 +218,7 @@ export default function EditProfile() {
                 type="file"
                 accept="image/*"
                 onChange={(e) => setPhoto(e.target.files[0])}
-                className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg focus:border-pink-500 focus:outline-none cursor-pointer hover:border-pink-400 transition"
+                className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg focus:border-blue-900 focus:outline-none cursor-pointer hover:border-blue-800 transition"
               />
               {photo && (
                 <p className="text-green-600 text-sm mt-2 font-semibold">✓ New image selected: {photo.name}</p>
@@ -238,7 +238,7 @@ export default function EditProfile() {
           </button>
           <button
             type="submit"
-            className="bg-gradient-to-r from-pink-500 to-red-500 hover:shadow-lg text-white px-6 py-2 rounded font-bold transition"
+            className="bg-gradient-to-r from-blue-900 to-slate-900 hover:shadow-lg text-white px-6 py-2 rounded font-bold transition"
           >
             Save Changes
           </button>

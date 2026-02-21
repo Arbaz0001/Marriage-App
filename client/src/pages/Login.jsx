@@ -28,22 +28,29 @@ export default function Login() {
   };
 
   return (
-    <form className="max-w-sm mx-auto mt-10 space-y-3" onSubmit={submitHandler}>
-      <h2 className="text-xl font-bold">Login</h2>
-      <input
-        className="border p-2 w-full"
-        placeholder="Email"
-        value={form.email}
-        onChange={(e) => setForm({ ...form, email: e.target.value })}
-      />
-      <input
-        className="border p-2 w-full"
-        type="password"
-        placeholder="Password"
-        value={form.password}
-        onChange={(e) => setForm({ ...form, password: e.target.value })}
-      />
-      <button className="bg-pink-600 text-white px-4 py-2 w-full">Login</button>
-    </form>
+    <div className="min-h-screen flex items-center justify-center bg-[#eef4ff] px-4">
+      <form
+        className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-4"
+        onSubmit={submitHandler}
+      >
+        <h2 className="text-2xl font-bold text-center text-blue-900">Login</h2>
+        <input
+          className="input"
+          placeholder="Email"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+        />
+        <input
+          className="input"
+          type="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
+        />
+        <button className="btn-primary w-full justify-center py-3">
+          Login
+        </button>
+      </form>
+    </div>
   );
 }

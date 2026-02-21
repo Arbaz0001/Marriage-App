@@ -78,9 +78,9 @@ export default function AdminCreate() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center items-start py-8">
+    <div className="min-h-screen bg-[#eef4ff] flex justify-center items-start py-8">
       <form onSubmit={submit} className="bg-white w-full max-w-4xl p-4 md:p-6 rounded shadow space-y-6">
-        <h2 className="text-2xl font-bold text-center text-pink-600">Create User & Profile (Admin)</h2>
+        <h2 className="text-2xl font-bold text-center text-blue-900">Create User & Profile (Admin)</h2>
 
         {/* ACCOUNT INFO */}
         <section>
@@ -201,7 +201,7 @@ export default function AdminCreate() {
           {photo && <p className="text-green-600 text-sm mt-2">✓ {photo.name}</p>}
         </section>
 
-        <button className="w-full bg-pink-600 text-white py-3 rounded font-semibold">Create User & Profile</button>
+        <button className="btn-primary w-full justify-center py-3 rounded font-semibold">Create User & Profile</button>
       </form>
     </div>
   );

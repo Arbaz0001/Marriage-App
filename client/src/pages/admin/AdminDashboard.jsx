@@ -204,20 +204,35 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+    <div className="min-h-screen bg-[#eef4ff] p-4 md:p-6">
       <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-3">
-        <h1 className="text-2xl md:text-3xl font-bold text-pink-600">Admin Dashboard</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-black">Admin Dashboard</h1>
         <div className="flex gap-2 flex-wrap">
-          <button onClick={refreshData} className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded font-semibold">🔄 Refresh</button>
-          <Link to="/admin/profiles/create" className="bg-green-600 text-white px-4 py-2 rounded font-semibold">+ New User</Link>
-          <Link to="/admin/profiles" className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">All Profiles</Link>
+          <button
+            onClick={refreshData}
+            className="btn-outline px-4 py-2"
+          >
+            🔄 Refresh
+          </button>
+          <Link
+            to="/admin/profiles/create"
+            className="btn-primary px-4 py-2"
+          >
+            + New User
+          </Link>
+          <Link
+            to="/admin/profiles"
+            className="btn-primary px-4 py-2"
+          >
+            All Profiles
+          </Link>
         </div>
       </div>
 
       {/* STATS */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <div className="bg-white p-4 md:p-6 rounded shadow text-center cursor-pointer hover:shadow-lg transition" onClick={() => { clearAllFilters(); }}>
-          <div className="text-3xl font-bold text-pink-600">{stats.totalUsers || 0}</div>
+          <div className="text-3xl font-bold text-blue-900">{stats.totalUsers || 0}</div>
           <div className="text-gray-600 text-sm">Total Users</div>
         </div>
         <div className={`bg-white p-4 md:p-6 rounded shadow text-center cursor-pointer hover:shadow-lg transition ${ genderFilter === 'male' ? 'ring-2 ring-blue-600' : ''}`} onClick={() => handleGenderFilter('male')}>
@@ -289,7 +304,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* IDENTITY CARDS */}
-      <h2 className="text-xl font-bold mb-4">
+      <h2 className="text-xl font-bold text-white mb-4">
         Profile Cards {profiles.length < allProfiles.length && `(${profiles.length} of ${allProfiles.length})`}
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -301,10 +316,10 @@ export default function AdminDashboard() {
             <div
               key={p._id}
               onClick={() => setSelectedProfile(p)}
-              className="bg-gradient-to-br from-pink-400 to-pink-600 rounded-lg shadow-lg overflow-hidden cursor-pointer transform hover:scale-105 transition-transform"
+              className="bg-gradient-to-br from-blue-900 to-slate-900 rounded-lg shadow-lg overflow-hidden cursor-pointer transform hover:scale-105 transition-transform"
             >
               {/* Card Header */}
-              <div className="bg-pink-600 text-white p-3 text-center text-sm font-bold">PROFILE CARD</div>
+              <div className="bg-blue-900 text-white p-3 text-center text-sm font-bold">PROFILE CARD</div>
 
               {/* Photo & Basic Info */}
               <div className="p-4 bg-white">
@@ -347,13 +362,13 @@ export default function AdminDashboard() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full my-8">
             {/* Modal Header */}
-            <div className="bg-pink-600 text-white p-4 flex justify-between items-center">
+            <div className="bg-blue-900 text-white p-4 flex justify-between items-center">
               <h2 className="text-xl font-bold">Profile Details</h2>
               <button onClick={() => setSelectedProfile(null)} className="text-2xl font-bold">✕</button>
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 space-y-6 max-h-96 overflow-y-auto">
+            <div className="p-6 space-y-6 max-h-96 overflow-y-auto text-slate-800">
               {/* Photo & Basic */}
               <div className="flex gap-6">
                 {selectedProfile.photos?.length > 0 ? (
@@ -366,7 +381,7 @@ export default function AdminDashboard() {
                   <h3 className="text-2xl font-bold text-gray-800">{selectedProfile.name || selectedProfile.user?.name}</h3>
                   <p className="text-gray-600 mb-3">{selectedProfile.gender} • {selectedProfile.age || "—"} years • {selectedProfile.maritalStatus}</p>
                   
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-2 text-sm text-slate-700">
                     <p><strong>📧 Email:</strong> {selectedProfile.user?.email || "—"}</p>
                     <p><strong>📞 Mobile:</strong> {selectedProfile.mobile || "—"}</p>
                     <p><strong>📱 WhatsApp:</strong> {selectedProfile.whatsapp || "—"}</p>
@@ -420,7 +435,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* Family */}
-              <div className="space-y-2 text-sm border-t pt-4">
+              <div className="space-y-2 text-sm text-slate-700 border-t pt-4">
                 <p><strong>Father:</strong> {selectedProfile.fatherName || "—"} ({selectedProfile.fatherOccupation || "—"})</p>
                 <p><strong>Mother:</strong> {selectedProfile.motherName || "—"} ({selectedProfile.motherOccupation || "—"})</p>
                 <p><strong>Siblings:</strong> {selectedProfile.siblings || "—"}</p>

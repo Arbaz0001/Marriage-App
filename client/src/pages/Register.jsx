@@ -117,18 +117,18 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center items-start py-8">
+    <div className="min-h-screen bg-[#eef4ff] flex justify-center items-start py-8">
       <form
         onSubmit={submitHandler}
-        className="bg-white w-full max-w-3xl p-6 rounded shadow space-y-6"
+        className="bg-white text-slate-800 w-full max-w-3xl p-6 rounded shadow space-y-6"
       >
-        <h2 className="text-2xl font-bold text-center text-pink-600">
+        <h2 className="text-2xl font-bold text-center text-blue-900">
           Muslim Matrimony Registration
         </h2>
 
         {/* ACCOUNT INFO */}
         <section>
-          <h3 className="font-semibold mb-2">Account Information</h3>
+          <h3 className="font-semibold text-slate-800 mb-2">Account Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input name="name" placeholder="Full Name" onChange={handleChange} value={form.name} className="input" />
             <input name="email" placeholder="Email" onChange={handleChange} value={form.email} className="input" />
@@ -139,7 +139,7 @@ export default function Register() {
 
         {/* BASIC DETAILS */}
         <section>
-          <h3 className="font-semibold mb-2">Basic Details</h3>
+          <h3 className="font-semibold text-slate-800 mb-2">Basic Details</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <select name="gender" value={form.gender} onChange={handleChange} className="input">
               <option value="">Gender</option>
@@ -173,7 +173,7 @@ export default function Register() {
 
         {/* RELIGION */}
         <section>
-          <h3 className="font-semibold mb-2">Religious Details</h3>
+          <h3 className="font-semibold text-slate-800 mb-2">Religious Details</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <select name="sect" value={form.sect} onChange={handleChange} className="input">
               <option value="">Sect</option>
@@ -187,7 +187,7 @@ export default function Register() {
 
         {/* LOCATION */}
         <section>
-          <h3 className="font-semibold mb-2">Location</h3>
+          <h3 className="font-semibold text-slate-800 mb-2">Location</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input name="state" placeholder="State / Village" onChange={handleChange} value={form.state || ''} className="input" />
             <input name="city" placeholder="City" onChange={handleChange} value={form.city || ''} className="input" />
@@ -196,7 +196,7 @@ export default function Register() {
 
         {/* CONTACT - WhatsApp */}
         <section>
-          <h3 className="font-semibold mb-2">Contact</h3>
+          <h3 className="font-semibold text-slate-800 mb-2">Contact</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input name="mobile" placeholder="Mobile number" onChange={handleChange} value={form.mobile} className="input" />
             <input name="whatsapp" placeholder="WhatsApp number (optional) e.g. 8306884318" onChange={handleChange} value={form.whatsapp} className="input" />
@@ -205,7 +205,7 @@ export default function Register() {
 
         {/* EDUCATION & WORK */}
         <section>
-          <h3 className="font-semibold mb-2">Education & Occupation</h3>
+          <h3 className="font-semibold text-slate-800 mb-2">Education & Occupation</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input name="education" placeholder="Highest Education" onChange={handleChange} value={form.education || ''} className="input" />
             <input name="occupation" placeholder="Occupation" onChange={handleChange} value={form.occupation || ''} className="input" />
@@ -215,7 +215,7 @@ export default function Register() {
 
         {/* FAMILY */}
         <section>
-          <h3 className="font-semibold mb-2">Family Details</h3>
+          <h3 className="font-semibold text-slate-800 mb-2">Family Details</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input name="fatherName" placeholder="Father's Name e.g. Riyaz Mohammed" onChange={handleChange} value={form.fatherName || ''} className="input" />
             <input name="motherName" placeholder="Mother's Name e.g. Jahan" onChange={handleChange} value={form.motherName || ''} className="input" />
@@ -233,7 +233,7 @@ export default function Register() {
 
         {/* LIFESTYLE */}
         <section>
-          <h3 className="font-semibold mb-2">Lifestyle</h3>
+          <h3 className="font-semibold text-slate-800 mb-2">Lifestyle</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input name="height" placeholder="Height e.g. 6 ft 2 in" onChange={handleChange} value={form.height || ''} className="input" />
             <input name="complexion" placeholder="Complexion e.g. Fair" onChange={handleChange} value={form.complexion || ''} className="input" />
@@ -244,7 +244,7 @@ export default function Register() {
 
         {/* ABOUT */}
         <section>
-          <h3 className="font-semibold mb-2">About Yourself</h3>
+          <h3 className="font-semibold text-slate-800 mb-2">About Yourself</h3>
           <textarea
             name="about"
             placeholder="Brief introduction"
@@ -256,7 +256,7 @@ export default function Register() {
 
         {/* PHOTO UPLOAD */}
         <section>
-          <h3 className="font-semibold mb-2">Profile Photo</h3>
+          <h3 className="font-semibold text-slate-800 mb-2">Profile Photo</h3>
           <div className="flex items-center gap-3">
             <input
               type="file"
@@ -268,7 +268,7 @@ export default function Register() {
           </div>
         </section>
 
-        <button className="w-full bg-pink-600 text-white py-3 rounded font-semibold">
+        <button className="btn-primary w-full justify-center py-3 rounded font-semibold">
           Register Profile
         </button>
       </form>

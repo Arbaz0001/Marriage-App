@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import API from "../services/api";
+import logo from "../assets/ssp.jpeg";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -29,10 +30,17 @@ export default function Navbar() {
   }, [token, isAdmin]);
 
   return (
-    <nav className="bg-pink-600 text-white p-4">
-      <div className="max-w-6xl mx-auto flex items-center justify-between">
+    <nav className="bg-blue-900 text-white/90 backdrop-blur shadow-sm">
+      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold">💍 Marriage App</h1>
+          <Link to="/" className="flex items-center gap-3">
+            <img
+              src={logo}
+              alt="Marriage App Logo"
+              className="h-12 w-12 rounded-xl border-2 border-white/80 object-cover shadow-md"
+            />
+            <h1 className="text-xl font-bold text-white tracking-wide">Marriage App</h1>
+          </Link>
         </div>
 
         {/* Desktop links */}
@@ -58,7 +66,7 @@ export default function Navbar() {
           <button
             aria-label="Toggle menu"
             onClick={() => setOpen(!open)}
-            className="p-2 rounded bg-pink-700/30"
+            className="p-2 rounded bg-white/10 hover:bg-white/20 transition"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               {open ? (
@@ -73,7 +81,7 @@ export default function Navbar() {
 
       {/* Mobile menu panel */}
       {open && (
-        <div className="md:hidden bg-pink-600/95 border-t border-pink-700">
+        <div className="md:hidden bg-blue-900/95 border-t border-blue-800">
           <div className="flex flex-col px-4 py-3 space-y-2">
             {isAdmin && <Link to="/admin/dashboard" onClick={() => setOpen(false)} className="block">Dashboard</Link>}
             {!token && <Link to="/" onClick={() => setOpen(false)} className="block">Home</Link>}
