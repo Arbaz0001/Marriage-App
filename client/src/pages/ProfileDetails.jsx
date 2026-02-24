@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../services/api";
+import { notifyError } from "../services/notify";
 
 export default function ProfileDetails() {
   const { id } = useParams();
@@ -15,7 +16,7 @@ export default function ProfileDetails() {
       .then((res) => setProfile(res.data))
       .catch((err) => {
         console.error(err);
-        alert(err.response?.data?.message || "Unable to load profile");
+        notifyError(err.response?.data?.message || "Unable to load profile");
         navigate("/matches");
       })
       .finally(() => setLoading(false));

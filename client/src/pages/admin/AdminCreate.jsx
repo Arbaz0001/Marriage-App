@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/api";
+import { notifyError, notifySuccess } from "../../services/notify";
 
 export default function AdminCreate() {
   const navigate = useNavigate();
@@ -69,11 +70,11 @@ export default function AdminCreate() {
 
       // Note: Don't set Content-Type header; browser will set it with boundary
       await API.post("/admin/users", fd, { headers });
-      alert("User and profile created successfully!");
+      notifySuccess("User and profile created successfully!");
       navigate("/admin/profiles");
     } catch (err) {
       console.error("Submit error:", err);
-      alert(err.response?.data?.message || err.message || "Failed to create profile");
+      notifyError(err.response?.data?.message || err.message || "Failed to create profile");
     }
   };
 

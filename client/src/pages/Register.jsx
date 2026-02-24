@@ -1,6 +1,7 @@
 import { useState } from "react";
 import API from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { notifyError, notifySuccess } from "../services/notify";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -108,11 +109,11 @@ export default function Register() {
         },
       });
 
-      alert("Registration complete — profile created.");
+      notifySuccess("Registration complete — profile created.");
       navigate("/matches");
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Registration failed");
+      notifyError(err.response?.data?.message || "Registration failed");
     }
   };
 

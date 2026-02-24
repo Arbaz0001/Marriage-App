@@ -2,42 +2,116 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import API from "../../services/api";
 import defaultImage from "../../assets/53897.jpg";
+import { notifyError, notifyInfo, notifySuccess } from "../../services/notify";
 
 export default function AdminProfiles() {
+  const defaultFilters = {
+    city: "",
+    sect: "",
+    gender: "",
+    occupation: "",
+    caste: "",
+    income: "",
+    minAge: "",
+    maxAge: "",
+  };
+
   const [profiles, setProfiles] = useState([]);
+  const [allProfiles, setAllProfiles] = useState([]);
   const [tableView, setTableView] = useState(false);
   const [selected, setSelected] = useState(null);
-  const [filters, setFilters] = useState({ city: "", sect: "", minAge: "", maxAge: "" });
+  const [filters, setFilters] = useState(defaultFilters);
 
   const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+  const ageOptions = Array.from({ length: 33 }, (_, index) => String(index + 18));
+
+  const getUniqueValues = (list, field) => {
+    const unique = new Set(
+      list
+        .map((item) => (item?.[field] || "").toString().trim())
+        .filter(Boolean)
+    );
+    return [...unique].sort((a, b) => a.localeCompare(b));
+  };
+
+  const cityOptions = getUniqueValues(allProfiles, "city");
+  const occupationOptions = getUniqueValues(allProfiles, "occupation");
+  const casteOptions = getUniqueValues(allProfiles, "caste");
+  const incomeOptions = getUniqueValues(allProfiles, "income");
+
+  const handleFilterChange = (field, value) => {
+    setFilters((prev) => ({ ...prev, [field]: value }));
+  };
 
   useEffect(() => {
-    API.get("/admin/profiles", { headers }).then((res) => setProfiles(res.data));
+    API.get("/admin/profiles", { headers }).then((res) => {
+      setProfiles(res.data);
+      setAllProfiles(res.data);
+    });
   }, []);
 
   const applyFilter = async () => {
-    const { data } = await API.get("/admin/profiles/filter", { headers, params: filters });
-    setProfiles(data);
+    try {
+      const minAge = filters.minAge ? Number(filters.minAge) : null;
+      const maxAge = filters.maxAge ? Number(filters.maxAge) : null;
+
+      const params = { ...filters };
+
+      if (minAge !== null && maxAge !== null) {
+        params.minAge = String(Math.min(minAge, maxAge));
+        params.maxAge = String(Math.max(minAge, maxAge));
+      }
+
+      const { data } = await API.get("/admin/profiles/filter", { headers, params });
+      setProfiles(data);
+      notifyInfo(`Found ${data.length} profile(s)`);
+    } catch (error) {
+      console.error("Filter error:", error);
+      notifyError("Failed to apply filters");
+    }
+  };
+
+  const clearFilter = () => {
+    setFilters(defaultFilters);
+    setProfiles(allProfiles);
   };
 
   const updateStatus = async (id, status) => {
-    await API.patch(`/admin/profiles/${id}/approve`, { status }, { headers });
-    setProfiles(profiles.map((p) => (p._id === id ? { ...p, isApproved: status } : p)));
+    try {
+      await API.patch(`/admin/profiles/${id}/approve`, { status }, { headers });
+      setProfiles(profiles.map((p) => (p._id === id ? { ...p, isApproved: status } : p)));
+      notifySuccess(status ? "Profile approved" : "Profile rejected");
+    } catch (error) {
+      console.error("Status update error:", error);
+      notifyError("Failed to update status");
+    }
   };
 
   const deleteProfile = async (id) => {
-    if (!confirm("Delete this profile?")) return;
-    await API.delete(`/admin/profiles/${id}`, { headers });
-    setProfiles(profiles.filter((p) => p._id !== id));
+    try {
+      await API.delete(`/admin/profiles/${id}`, { headers });
+      setProfiles(profiles.filter((p) => p._id !== id));
+      notifySuccess("Profile deleted successfully");
+    } catch (error) {
+      console.error("Delete error:", error);
+      notifyError("Failed to delete profile");
+    }
   };
 
   const exportCSV = async () => {
-    const res = await API.get("/admin/profiles/export", { headers, responseType: "blob" });
-    const url = window.URL.createObjectURL(new Blob([res.data]));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "profiles.csv";
-    a.click();
+    try {
+      const res = await API.get("/admin/profiles/export", { headers, responseType: "blob" });
+      const url = globalThis.URL.createObjectURL(new Blob([res.data]));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "profiles.csv";
+      a.click();
+      globalThis.URL.revokeObjectURL(url);
+      notifySuccess("Profiles exported successfully");
+    } catch (error) {
+      console.error("Export error:", error);
+      notifyError("Failed to export profiles");
+    }
   };
 
   return (
@@ -45,24 +119,73 @@ export default function AdminProfiles() {
       <h1 className="text-2xl font-bold mb-4">All Matrimony Profiles</h1>
 
       {/* FILTER BAR */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-6">
-        <input placeholder="City" className="input" onChange={(e) => setFilters({ ...filters, city: e.target.value })} />
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 mb-6">
+        <select className="input" value={filters.city} onChange={(e) => handleFilterChange("city", e.target.value)}>
+          <option value="">City</option>
+          {cityOptions.map((city) => (
+            <option key={city} value={city}>{city}</option>
+          ))}
+        </select>
 
-        <select className="input" onChange={(e) => setFilters({ ...filters, sect: e.target.value })}>
+        <select className="input" value={filters.sect} onChange={(e) => handleFilterChange("sect", e.target.value)}>
           <option value="">Sect</option>
           <option>Sunni</option>
           <option>Shia</option>
         </select>
 
-        <input placeholder="Min Age" className="input" onChange={(e) => setFilters({ ...filters, minAge: e.target.value })} />
+        <select className="input" value={filters.gender} onChange={(e) => handleFilterChange("gender", e.target.value)}>
+          <option value="">Gender</option>
+          <option value="male">Ladka</option>
+          <option value="female">Ladki</option>
+        </select>
 
-        <input placeholder="Max Age" className="input" onChange={(e) => setFilters({ ...filters, maxAge: e.target.value })} />
+        <select className="input" value={filters.minAge} onChange={(e) => handleFilterChange("minAge", e.target.value)}>
+          <option value="">Min Age</option>
+          {ageOptions.map((age) => (
+            <option key={`min-${age}`} value={age}>{age}</option>
+          ))}
+        </select>
+
+        <select className="input" value={filters.maxAge} onChange={(e) => handleFilterChange("maxAge", e.target.value)}>
+          <option value="">Max Age</option>
+          {ageOptions.map((age) => (
+            <option key={`max-${age}`} value={age}>{age}</option>
+          ))}
+        </select>
+
+        <select className="input" value={filters.occupation} onChange={(e) => handleFilterChange("occupation", e.target.value)}>
+          <option value="">Occupation</option>
+          {occupationOptions.map((occupation) => (
+            <option key={occupation} value={occupation}>{occupation}</option>
+          ))}
+        </select>
+
+        <select className="input" value={filters.caste} onChange={(e) => handleFilterChange("caste", e.target.value)}>
+          <option value="">Caste</option>
+          {casteOptions.map((caste) => (
+            <option key={caste} value={caste}>{caste}</option>
+          ))}
+        </select>
+
+        <select className="input" value={filters.income} onChange={(e) => handleFilterChange("income", e.target.value)}>
+          <option value="">Income</option>
+          {incomeOptions.map((income) => (
+            <option key={income} value={income}>{income}</option>
+          ))}
+        </select>
 
         <button
           onClick={applyFilter}
-          className="btn-primary col-span-2 md:col-span-1 justify-center py-2"
+          className="btn-primary col-span-1 justify-center py-2"
         >
           Apply
+        </button>
+
+        <button
+          onClick={clearFilter}
+          className="btn-outline col-span-1 justify-center py-2"
+        >
+          Clear
         </button>
       </div>
 

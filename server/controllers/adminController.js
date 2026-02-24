@@ -244,23 +244,28 @@ export const exportProfilesCSV = async (req, res) => {
 };
 
 export const filterProfiles = async (req, res) => {
-  const { city, sect, minAge, maxAge } = req.query;
+  const { city, sect, gender, occupation, caste, income, minAge, maxAge } = req.query;
 
-  let query = {};
+  const query = {};
 
-  if (city) query.city = city;
-  if (sect) query.sect = sect;
+  const escapeRegex = (value) =>
+    value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-  if (minAge || maxAge) {
-    const minDate = minAge
-      ? new Date(new Date().setFullYear(new Date().getFullYear() - minAge))
-      : new Date("1900");
+  if (city) query.city = new RegExp(`^${escapeRegex(city)}$`, "i");
+  if (sect) query.sect = new RegExp(`^${escapeRegex(sect)}$`, "i");
+  if (gender) query.gender = new RegExp(`^${escapeRegex(gender)}$`, "i");
+  if (occupation) query.occupation = new RegExp(`^${escapeRegex(occupation)}$`, "i");
+  if (caste) query.caste = new RegExp(`^${escapeRegex(caste)}$`, "i");
+  if (income) query.income = new RegExp(`^${escapeRegex(income)}$`, "i");
 
-    const maxDate = maxAge
-      ? new Date(new Date().setFullYear(new Date().getFullYear() - maxAge))
-      : new Date();
+  const minAgeNumber = Number.parseInt(minAge, 10);
+  const maxAgeNumber = Number.parseInt(maxAge, 10);
 
-    query.dob = { $gte: maxDate, $lte: minDate };
+  if (!Number.isNaN(minAgeNumber) || !Number.isNaN(maxAgeNumber)) {
+    query.age = {};
+
+    if (!Number.isNaN(minAgeNumber)) query.age.$gte = minAgeNumber;
+    if (!Number.isNaN(maxAgeNumber)) query.age.$lte = maxAgeNumber;
   }
 
   const profiles = await Profile.find(query);

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import API from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { notifyError } from "../services/notify";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -23,7 +24,7 @@ export default function Login() {
       // show server error message and log full response for debugging
       const msg = err?.response?.data?.message || err.message || "Login failed";
       console.error("Login error:", err?.response || err);
-      alert(msg);
+      notifyError(msg);
     }
   };
 

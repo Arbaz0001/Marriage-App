@@ -3,21 +3,61 @@ import { Link } from "react-router-dom";
 import API from "../../services/api";
 import jsPDF from "jspdf";
 import defaultImage from "../../assets/53897.jpg";
+import { notifyError, notifyInfo, notifySuccess } from "../../services/notify";
 
 export default function AdminDashboard() {
+  const defaultFilters = {
+    city: "",
+    sect: "",
+    gender: "",
+    occupation: "",
+    caste: "",
+    income: "",
+    minAge: "",
+    maxAge: "",
+  };
+
   const [profiles, setProfiles] = useState([]);
   const [allProfiles, setAllProfiles] = useState([]);
   const [stats, setStats] = useState({});
   const [selectedProfile, setSelectedProfile] = useState(null);
-  const [genderFilter, setGenderFilter] = useState(null);
-  const [cityFilter, setCityFilter] = useState(null);
-  const [ageFilter, setAgeFilter] = useState(null);
-  const [casteFilter, setCasteFilter] = useState(null);
+  const [filters, setFilters] = useState(defaultFilters);
+
+  const ageOptions = Array.from({ length: 33 }, (_, index) => String(index + 18));
+  const getHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
+
+  const getUniqueValues = (list, field) => {
+    const unique = new Set(
+      list
+        .map((item) => (item?.[field] || "").toString().trim())
+        .filter(Boolean)
+    );
+    return [...unique].sort((a, b) => a.localeCompare(b));
+  };
+
+  const cityOptions = getUniqueValues(allProfiles, "city");
+  const occupationOptions = getUniqueValues(allProfiles, "occupation");
+  const casteOptions = getUniqueValues(allProfiles, "caste");
+  const incomeOptions = getUniqueValues(allProfiles, "income");
+
+  const hasActiveFilters =
+    filters.city ||
+    filters.sect ||
+    filters.gender ||
+    filters.occupation ||
+    filters.caste ||
+    filters.income ||
+    filters.minAge ||
+    filters.maxAge;
+
+  const handleFilterChange = (field, value) => {
+    setFilters((prev) => ({ ...prev, [field]: value }));
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+        const headers = getHeaders();
         const profilesRes = await API.get("/admin/profiles", { headers });
         setAllProfiles(profilesRes.data);
         setProfiles(profilesRes.data);
@@ -26,77 +66,44 @@ export default function AdminDashboard() {
         setStats(statsRes.data);
       } catch (error) {
         console.error("Error fetching data:", error);
-        alert("Failed to load dashboard data");
+        notifyError("Failed to load dashboard data");
       }
     };
     fetchData();
   }, []);
 
-  const handleGenderFilter = (gender) => {
-    if (genderFilter === gender) {
-      setGenderFilter(null);
-    } else {
-      setGenderFilter(gender);
+  const applyFilter = async (filterData = filters) => {
+    try {
+      const minAge = filterData.minAge ? Number(filterData.minAge) : null;
+      const maxAge = filterData.maxAge ? Number(filterData.maxAge) : null;
+
+      const params = { ...filterData };
+
+      if (minAge !== null && maxAge !== null) {
+        params.minAge = String(Math.min(minAge, maxAge));
+        params.maxAge = String(Math.max(minAge, maxAge));
+      }
+
+      const headers = getHeaders();
+      const { data } = await API.get("/admin/profiles/filter", { headers, params });
+      setProfiles(data);
+      notifyInfo(`Found ${data.length} profile(s)`);
+    } catch (error) {
+      console.error("Error applying filters:", error);
+      notifyError("Failed to apply filters");
     }
   };
 
-  const handleCityFilter = (city) => {
-    if (cityFilter === city) {
-      setCityFilter(null);
-    } else {
-      setCityFilter(city);
-    }
+  const handleGenderStatFilter = async (gender) => {
+    const nextGender = filters.gender === gender ? "" : gender;
+    const nextFilters = { ...filters, gender: nextGender };
+    setFilters(nextFilters);
+    await applyFilter(nextFilters);
   };
-
-  const handleAgeFilter = (age) => {
-    if (ageFilter === age) {
-      setAgeFilter(null);
-    } else {
-      setAgeFilter(age);
-    }
-  };
-
-  const handleCasteFilter = (caste) => {
-    if (casteFilter === caste) {
-      setCasteFilter(null);
-    } else {
-      setCasteFilter(caste);
-    }
-  };
-
-  // Apply all filters
-  useEffect(() => {
-    let filtered = [...allProfiles];
-
-    if (genderFilter) {
-      filtered = filtered.filter(p => p.gender === genderFilter);
-    }
-
-    if (cityFilter) {
-      filtered = filtered.filter(p => p.city === cityFilter);
-    }
-
-    if (ageFilter) {
-      filtered = filtered.filter(p => p.age === parseInt(ageFilter));
-    }
-
-    if (casteFilter) {
-      filtered = filtered.filter(p => p.caste === casteFilter);
-    }
-
-    setProfiles(filtered);
-  }, [genderFilter, cityFilter, ageFilter, casteFilter, allProfiles]);
-
-  // Get unique values for filters
-  const uniqueCities = [...new Set(allProfiles.map(p => p.city).filter(Boolean))].sort();
-  const uniqueAges = [...new Set(allProfiles.map(p => p.age).filter(p => p))].sort((a, b) => a - b);
-  const uniqueCastes = [...new Set(allProfiles.map(p => p.caste).filter(Boolean))].sort();
 
   const clearAllFilters = () => {
-    setGenderFilter(null);
-    setCityFilter(null);
-    setAgeFilter(null);
-    setCasteFilter(null);
+    setFilters(defaultFilters);
+    setProfiles(allProfiles);
   };
 
   const downloadPDF = () => {
@@ -160,46 +167,55 @@ export default function AdminDashboard() {
     });
 
     const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+    const url = globalThis.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'marriage-app-report.csv';
     a.click();
-    window.URL.revokeObjectURL(url);
+    globalThis.URL.revokeObjectURL(url);
+    notifySuccess("Excel report downloaded");
   };
 
   const deleteProfile = async (id) => {
-    const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
-    if (!confirm("Delete this profile?")) return;
-    await API.delete(`/admin/profiles/${id}`, { headers });
-    setProfiles(profiles.filter((p) => p._id !== id));
+    try {
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      await API.delete(`/admin/profiles/${id}`, { headers });
+      setProfiles(profiles.filter((p) => p._id !== id));
+      notifySuccess("Profile deleted successfully");
+    } catch (error) {
+      console.error("Delete error:", error);
+      notifyError("Failed to delete profile");
+    }
   };
 
   const updateStatus = async (id, status) => {
-    const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
-    await API.patch(`/admin/profiles/${id}/approve`, { status }, { headers });
-    const updated = profiles.map((p) => (p._id === id ? { ...p, isApproved: status } : p));
-    setProfiles(updated);
-    if (selectedProfile?._id === id) setSelectedProfile({ ...selectedProfile, isApproved: status });
+    try {
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      await API.patch(`/admin/profiles/${id}/approve`, { status }, { headers });
+      const updated = profiles.map((p) => (p._id === id ? { ...p, isApproved: status } : p));
+      setProfiles(updated);
+      if (selectedProfile?._id === id) setSelectedProfile({ ...selectedProfile, isApproved: status });
+      notifySuccess(status ? "Profile approved" : "Profile rejected");
+    } catch (error) {
+      console.error("Status update error:", error);
+      notifyError("Failed to update status");
+    }
   };
 
   const refreshData = async () => {
     try {
-      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const headers = getHeaders();
       const profilesRes = await API.get("/admin/profiles", { headers });
       setAllProfiles(profilesRes.data);
       setProfiles(profilesRes.data);
-      setGenderFilter(null);
-      setCityFilter(null);
-      setAgeFilter(null);
-      setCasteFilter(null);
+      setFilters(defaultFilters);
       
       const statsRes = await API.get("/admin/stats", { headers });
       setStats(statsRes.data);
-      alert("Dashboard updated!");
+      notifySuccess("Dashboard updated");
     } catch (error) {
       console.error("Error refreshing data:", error);
-      alert("Failed to refresh data");
+      notifyError("Failed to refresh data");
     }
   };
 
@@ -235,11 +251,11 @@ export default function AdminDashboard() {
           <div className="text-3xl font-bold text-blue-900">{stats.totalUsers || 0}</div>
           <div className="text-gray-600 text-sm">Total Users</div>
         </div>
-        <div className={`bg-white p-4 md:p-6 rounded shadow text-center cursor-pointer hover:shadow-lg transition ${ genderFilter === 'male' ? 'ring-2 ring-blue-600' : ''}`} onClick={() => handleGenderFilter('male')}>
+        <div className={`bg-white p-4 md:p-6 rounded shadow text-center cursor-pointer hover:shadow-lg transition ${ filters.gender === 'male' ? 'ring-2 ring-blue-600' : ''}`} onClick={() => handleGenderStatFilter('male')}>
           <div className="text-3xl font-bold text-blue-600">{stats.male || 0}</div>
           <div className="text-gray-600 text-sm">Male</div>
         </div>
-        <div className={`bg-white p-4 md:p-6 rounded shadow text-center cursor-pointer hover:shadow-lg transition ${ genderFilter === 'female' ? 'ring-2 ring-purple-600' : ''}`} onClick={() => handleGenderFilter('female')}>
+        <div className={`bg-white p-4 md:p-6 rounded shadow text-center cursor-pointer hover:shadow-lg transition ${ filters.gender === 'female' ? 'ring-2 ring-purple-600' : ''}`} onClick={() => handleGenderStatFilter('female')}>
           <div className="text-3xl font-bold text-purple-600">{stats.female || 0}</div>
           <div className="text-gray-600 text-sm">Female</div>
         </div>
@@ -248,43 +264,102 @@ export default function AdminDashboard() {
       {/* FILTER SECTION */}
       <div className="bg-white p-4 rounded shadow mb-6">
         <h3 className="font-semibold text-gray-800 mb-3">Filters</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-8 gap-4">
           {/* City Filter */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">City</label>
-            <select value={cityFilter || ""} onChange={(e) => handleCityFilter(e.target.value || null)} className="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+            <label htmlFor="dashboard-filter-city" className="block text-sm font-semibold text-gray-700 mb-2">City</label>
+            <select id="dashboard-filter-city" value={filters.city} onChange={(e) => handleFilterChange("city", e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 text-sm">
               <option value="">All Cities</option>
-              {uniqueCities.map(city => (
+              {cityOptions.map(city => (
                 <option key={city} value={city}>{city}</option>
               ))}
             </select>
           </div>
 
-          {/* Age Filter */}
+          {/* Sect Filter */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Age</label>
-            <select value={ageFilter || ""} onChange={(e) => handleAgeFilter(e.target.value || null)} className="w-full border border-gray-300 rounded px-3 py-2 text-sm">
-              <option value="">All Ages</option>
-              {uniqueAges.map(age => (
-                <option key={age} value={age}>{age} yrs</option>
+            <label htmlFor="dashboard-filter-sect" className="block text-sm font-semibold text-gray-700 mb-2">Sect</label>
+            <select id="dashboard-filter-sect" value={filters.sect} onChange={(e) => handleFilterChange("sect", e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+              <option value="">All Sects</option>
+              <option value="Sunni">Sunni</option>
+              <option value="Shia">Shia</option>
+            </select>
+          </div>
+
+          {/* Gender Filter */}
+          <div>
+            <label htmlFor="dashboard-filter-gender" className="block text-sm font-semibold text-gray-700 mb-2">Gender</label>
+            <select id="dashboard-filter-gender" value={filters.gender} onChange={(e) => handleFilterChange("gender", e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+              <option value="">All</option>
+              <option value="male">Ladka</option>
+              <option value="female">Ladki</option>
+            </select>
+          </div>
+
+          {/* Min Age Filter */}
+          <div>
+            <label htmlFor="dashboard-filter-min-age" className="block text-sm font-semibold text-gray-700 mb-2">Min Age</label>
+            <select id="dashboard-filter-min-age" value={filters.minAge} onChange={(e) => handleFilterChange("minAge", e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+              <option value="">Min Age</option>
+              {ageOptions.map((age) => (
+                <option key={`min-${age}`} value={age}>{age}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Max Age Filter */}
+          <div>
+            <label htmlFor="dashboard-filter-max-age" className="block text-sm font-semibold text-gray-700 mb-2">Max Age</label>
+            <select id="dashboard-filter-max-age" value={filters.maxAge} onChange={(e) => handleFilterChange("maxAge", e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+              <option value="">Max Age</option>
+              {ageOptions.map((age) => (
+                <option key={`max-${age}`} value={age}>{age}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Occupation Filter */}
+          <div>
+            <label htmlFor="dashboard-filter-occupation" className="block text-sm font-semibold text-gray-700 mb-2">Occupation</label>
+            <select id="dashboard-filter-occupation" value={filters.occupation} onChange={(e) => handleFilterChange("occupation", e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+              <option value="">All Occupations</option>
+              {occupationOptions.map((occupation) => (
+                <option key={occupation} value={occupation}>{occupation}</option>
               ))}
             </select>
           </div>
 
           {/* Caste Filter */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Caste</label>
-            <select value={casteFilter || ""} onChange={(e) => handleCasteFilter(e.target.value || null)} className="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+            <label htmlFor="dashboard-filter-caste" className="block text-sm font-semibold text-gray-700 mb-2">Caste</label>
+            <select id="dashboard-filter-caste" value={filters.caste} onChange={(e) => handleFilterChange("caste", e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 text-sm">
               <option value="">All Castes</option>
-              {uniqueCastes.map(caste => (
+              {casteOptions.map(caste => (
                 <option key={caste} value={caste}>{caste}</option>
               ))}
             </select>
           </div>
 
-          {/* Clear Button */}
+          {/* Income Filter */}
+          <div>
+            <label htmlFor="dashboard-filter-income" className="block text-sm font-semibold text-gray-700 mb-2">Income</label>
+            <select id="dashboard-filter-income" value={filters.income} onChange={(e) => handleFilterChange("income", e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+              <option value="">All Income</option>
+              {incomeOptions.map((income) => (
+                <option key={income} value={income}>{income}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Action Buttons */}
           <div className="flex items-end">
-            {(genderFilter || cityFilter || ageFilter || casteFilter) && (
+            <button onClick={() => applyFilter()} className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold text-sm">
+              Apply
+            </button>
+          </div>
+
+          <div className="flex items-end">
+            {hasActiveFilters && (
               <button onClick={clearAllFilters} className="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded font-semibold text-sm">
                 Clear All
               </button>

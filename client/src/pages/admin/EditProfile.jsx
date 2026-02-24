@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../../services/api";
 import defaultImage from "../../assets/53897.jpg";
+import { notifyError, notifySuccess } from "../../services/notify";
 
 export default function EditProfile() {
   const { id } = useParams();
@@ -74,11 +75,11 @@ export default function EditProfile() {
       
       const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
       await API.put(`/admin/profiles/${id}`, fd, { headers });
-      alert("Profile updated successfully!");
+      notifySuccess("Profile updated successfully!");
       navigate("/admin/profiles");
     } catch (err) {
       console.error("Update error:", err.response?.data || err.message);
-      alert(err.response?.data?.message || err.message || "Failed to update profile");
+      notifyError(err.response?.data?.message || err.message || "Failed to update profile");
     }
   };
 
