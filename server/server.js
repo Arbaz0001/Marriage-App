@@ -45,14 +45,21 @@ app.post("/webhook", express.json({ type: "*/*" }), (req, res) => {
   });
 });
 
-app.use("/api/auth", authRoutes);
-app.use("/api/profile", profileRoutes);
-app.use("/api/admin", adminRoutes);
+app.use(["/api/auth", "/auth"], authRoutes);
+app.use(["/api/profile", "/profile"], profileRoutes);
+app.use(["/api/admin", "/admin"], adminRoutes);
 
 app.get("/", (_req, res) => {
   res.status(200).json({
     success: true,
     message: "Marriage App API Running",
+  });
+});
+
+app.use("/api", (_req, res) => {
+  return res.status(404).json({
+    success: false,
+    message: "API route not found",
   });
 });
 
