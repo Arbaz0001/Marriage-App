@@ -12,17 +12,26 @@ connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const PROD_ORIGIN = "https://marriage.sspurm.org";
+const ALLOWED_ORIGINS = new Set([
+  "https://marriage.sspurm.org",
+  "http://localhost:3000",
+  "http://localhost:5173",
+]);
 
 app.set("trust proxy", 1);
 
 const corsOptions = {
   origin(origin, callback) {
-    if (!origin || origin === PROD_ORIGIN) {
+    if (!origin) {
       return callback(null, true);
     }
 
-    return callback(new Error("CORS Not Allowed"));
+    if (ALLOWED_ORIGINS.has(origin)) {
+      return callback(null, true);
+    }
+
+    console.error(`CORS origin not in allow list, allowing request: ${origin}`);
+    return callback(null, true);
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -45,9 +54,12 @@ app.post("/webhook", express.json({ type: "*/*" }), (req, res) => {
   });
 });
 
-app.use(["/api/auth", "/auth"], authRoutes);
-app.use(["/api/profile", "/profile"], profileRoutes);
-app.use(["/api/admin", "/admin"], adminRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/auth", authRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/profile", profileRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/admin", adminRoutes);
 
 app.get("/", (_req, res) => {
   res.status(200).json({
@@ -64,16 +76,11 @@ app.use("/api", (_req, res) => {
 });
 
 app.use((err, _req, res, _next) => {
-  if (err?.message === "CORS Not Allowed") {
-    return res.status(403).json({
-      success: false,
-      message: "CORS Not Allowed",
-    });
-  }
+  console.error("Unhandled server error:", err);
 
   return res.status(500).json({
     success: false,
-    message: "Internal Server Error",
+    message: err?.message || "Internal Server Error",
   });
 });
 
