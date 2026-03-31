@@ -26,9 +26,6 @@ export const registerUser = async (req, res) => {
 
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  console.log("Login attempt:", { email, password });
-  console.log("ADMIN_EMAIL env:", process.env.ADMIN_EMAIL);
-  console.log("ADMIN_PASSWORD set:", !!process.env.ADMIN_PASSWORD);
 
   // 🔐 ENV ADMIN LOGIN CHECK
   if (

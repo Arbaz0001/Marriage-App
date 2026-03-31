@@ -19,8 +19,23 @@
 
 import axios from "axios";
 
+const trimTrailingSlash = (value) => value?.trim().replace(/\/+$/, "");
+
+const configuredApiUrl = trimTrailingSlash(import.meta.env.VITE_API_URL);
+const isBrowser = typeof window !== "undefined";
+const hostname = isBrowser ? window.location.hostname : "";
+const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1";
+
+export const API_ORIGIN =
+  configuredApiUrl ||
+  (isBrowser
+    ? isLocalHost
+      ? "http://localhost:5000"
+      : window.location.origin
+    : "http://localhost:5000");
+
 const API = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api`,
+  baseURL: `${API_ORIGIN}/api`,
 });
 
 // attach token automatically if present
